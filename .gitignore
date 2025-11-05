@@ -1,0 +1,6 @@
+acados_generated_files/
+.claude/
+**/__pycache__/
+**/*.pyc
+.vscode/
+log/
