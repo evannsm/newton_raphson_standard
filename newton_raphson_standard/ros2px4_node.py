@@ -221,7 +221,7 @@ class OffboardControl(Node):
         # ----------------------- Set up Flight Phases and Time --------------------------  
         self.T0 = time.time()
         self.program_time: float = 0.0
-        self.cushion_period = 5.0
+        self.cushion_period = 8.0
         self.flight_period = 15.0
         self.land_time = self.flight_period + 2 * self.cushion_period
         self.flight_phase = self.get_phase()
@@ -609,7 +609,7 @@ class OffboardControl(Node):
             return
         
         # print(f"#"*60)
-        throttle_val = 0.3
+        throttle_val = 0.0
         
         if not self.trajectory_started:
             self.trajectory_T0 = time.time()

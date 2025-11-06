@@ -443,5 +443,5 @@ def generate_reference_trajectory(
 
     # Vectorize over all sample times; ctx stays constant (static) for your jitted traj funcs
     pos_jax = jax.vmap(one_sample)(t_samples)         # shape: (num_steps, 12)
-    print(f"Generated trajectory: {pos_jax}")
+    # print(f"Generated trajectory: {pos_jax}")
     return pos_jax
