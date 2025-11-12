@@ -23,7 +23,7 @@ Design:
 import jax
 from jax import jacfwd
 import jax.numpy as jnp
-from newton_raphson_standard_utils.jax_utils
+from newton_raphson_standard_utils.jax_utils import jit
 
 import numpy as np
 from dataclasses import dataclass
