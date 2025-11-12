@@ -251,6 +251,8 @@ class OffboardControl(Node):
         self.jit_compile_trajectories()
         print("[Offboard Control Node] Node initialized successfully!\n")
         time.sleep(3)  # Allow time to inspect JIT-compilation output
+        
+        self.T0 = time.time() # Reset program time after JIT compilation
 
         # exit(0)
 
