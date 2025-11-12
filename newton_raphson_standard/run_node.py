@@ -164,12 +164,8 @@ def main():
         print(f"\nError: {e}")
         traceback.print_exc()
     finally:
-        if pyjoules and offboard_control_node.csv_handler:
-            print("Saving PyJoules energy data...")
-            offboard_control_node.csv_handler.save_data()
-        else:
-            print("Saving log data...")
-            shutdown_logging()
+        print("Saving log data...")
+        shutdown_logging()
 
         print("\nNode shut down.")
 
