@@ -6,7 +6,7 @@ from .ros2px4_node import OffboardControl
 from newton_raphson_standard_utils.main_utils import BANNER
 from newton_raphson_standard_utils.vehicles.platform_interface import PlatformType
 from newton_raphson_standard_utils.trajectories import TrajectoryType
-from pyJoules.handler.csv_handler import CSVHandler
+# from pyJoules.handler.csv_handler import CSVHandler
 
 def create_parser():
     """Create and configure argument parser.
@@ -60,12 +60,6 @@ def create_parser():
         help="Hover mode (required when --trajectory=hover). On hardware only 1–4 are allowed.",
     )
 
-    # Optional flags
-    parser.add_argument(
-        '--pyjoules',
-        action='store_true',
-        help='Enable PyJoules energy monitoring'
-    )
 
     parser.add_argument(
         '--double-speed',
@@ -121,7 +115,6 @@ def main():
     platform=args.platform
     trajectory=args.trajectory
     hover_mode=args.hover_mode
-    pyjoules=args.pyjoules
     double_speed=args.double_speed
     short=args.short
     spin=args.spin
@@ -136,7 +129,6 @@ def main():
     print(f"Platform:      {platform.upper()}")
     print(f"Trajectory:    {trajectory.upper()}")
     print(f"Hover Mode:    {hover_mode if hover_mode is not None else 'N/A'}")
-    print(f"PyJoules:      {'Enabled' if pyjoules else 'Disabled'}")
     print(f"Speed:         {'Double (2x)' if double_speed else 'Regular (1x)'}")
     print(f"Short:         {'Enabled (fig8_vert)' if short else 'Disabled'}")
     print(f"Spin:          {'Enabled (circle_horz, helix)' if spin else 'Disabled'}")
@@ -151,8 +143,6 @@ def main():
         double_speed=double_speed,
         short=short,
         spin=spin,
-        pyjoules=pyjoules,
-        csv_handler=CSVHandler(log_file, base_path) if pyjoules else None
     )
 
     logger = None

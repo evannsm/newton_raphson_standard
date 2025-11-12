@@ -51,11 +51,6 @@ import numpy as np
 import jax.numpy as jnp
 from scipy.spatial.transform import Rotation as R
 
-from pyJoules.handler.csv_handler import CSVHandler
-from pyJoules.device.rapl_device import RaplPackageDomain
-from pyJoules.energy_meter import EnergyContext
-# from pyJoules.energy_meter import measure_energy
-
 
 from Logger import LogType, VectorLogType # pyright: ignore[reportMissingImports, reportAttributeAccessIssue]
 
@@ -63,8 +58,7 @@ GRAVITY: float = 9.806
 
 class OffboardControl(Node):
     def __init__(self, platform_type: PlatformType, trajectory: TrajectoryType = TrajectoryType.HOVER, hover_mode: int|None = None,
-                double_speed: bool = True, short: bool = False, spin: bool = False,
-                pyjoules: bool = False, csv_handler: CSVHandler|None = None) -> None:
+                double_speed: bool = True, short: bool = False, spin: bool = False) -> None:
         
         super().__init__('offboard_control_node')
         self.get_logger().info(f"{BANNER}Initializing ROS 2 node: '{self.__class__.__name__}'{BANNER}")
@@ -75,10 +69,6 @@ class OffboardControl(Node):
         self.double_speed = double_speed
         self.short = short
         self.spin = spin
-        self.pyjoules_on = pyjoules
-        if self.pyjoules_on:
-            print("PyJoules energy monitoring ENABLED")
-            self.csv_handler = csv_handler
 
 
         # self.ctx_hover = TrajContext(sim=self.sim, hover_mode=self.hover_mode)
@@ -99,24 +89,22 @@ class OffboardControl(Node):
 
 
         # --- Set up Logging Arrays ---
-        if not self.pyjoules_on:
-            print("Data logging is ON because pyJoules logging is OFF")
-            self.data_log_timer_period = .1
-            self.first_log = True
-            if self.first_log:
-                self.first_log = False
-                self.get_logger().info("Starting data logging.")
-                self.platform_logtype = LogType("platform", 0)
-                self.trajectory_logtype = LogType("trajectory", 2)
-                self.traj_double_logtype = LogType("traj_double", 3)
-                self.traj_short_logtype = LogType("traj_short", 4)
-                self.traj_spin_logtype = LogType("traj_spin", 5)
+        self.data_log_timer_period = .1
+        self.first_log = True
+        if self.first_log:
+            self.first_log = False
+            self.get_logger().info("Starting data logging.")
+            self.platform_logtype = LogType("platform", 0)
+            self.trajectory_logtype = LogType("trajectory", 2)
+            self.traj_double_logtype = LogType("traj_double", 3)
+            self.traj_short_logtype = LogType("traj_short", 4)
+            self.traj_spin_logtype = LogType("traj_spin", 5)
 
-                self.platform_logtype.append(self.platform_type.value.upper())
-                self.trajectory_logtype.append(self.ref_type.name)
-                self.traj_double_logtype.append("DblSpd" if self.double_speed else "NormSpd")
-                self.traj_short_logtype.append("Short" if self.short else "Not Short")
-                self.traj_spin_logtype.append("Spin" if self.spin else "NoSpin")
+            self.platform_logtype.append(self.platform_type.value.upper())
+            self.trajectory_logtype.append(self.ref_type.name)
+            self.traj_double_logtype.append("DblSpd" if self.double_speed else "NormSpd")
+            self.traj_short_logtype.append("Short" if self.short else "Not Short")
+            self.traj_spin_logtype.append("Spin" if self.spin else "NoSpin")
 
             # Time logs
             self.program_time_logtype = LogType("time", 6)
@@ -200,7 +188,7 @@ class OffboardControl(Node):
         # ----------------------- Timers --------------------------
         self.data_log_timer_period = 1.0 / 10.0  # 10 Hz data logging
         self.data_log_timer = self.create_timer(self.data_log_timer_period,
-                                                self.data_log_timer_callback) if not self.pyjoules_on else None
+                                                self.data_log_timer_callback)
 
         self.offboard_setpoint_counter = 0
         self.offboard_timer_period = 1.0 / 10.0  # 10 Hz offboard heartbeat
@@ -650,11 +638,7 @@ class OffboardControl(Node):
 
     def controller_handler(self):
         """Wrapper for controller computation."""
-        if self.pyjoules_on:
-            with EnergyContext(handler=self.csv_handler, domains=[RaplPackageDomain(0)]): # type: ignore #
-                self.controller()
-        else:
-            self.controller()
+        self.controller()
 
     def controller(self):
         """Compute control input."""
