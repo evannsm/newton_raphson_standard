@@ -32,9 +32,17 @@ Example Usage:
 """
 
 from abc import ABC, abstractmethod
-from enum import StrEnum
 from typing import Dict, Type
 
+import enum
+try:
+    # Python 3.11+
+    from enum import StrEnum  # type: ignore[attr-defined]
+except ImportError:
+    # Python 3.10 fallback
+    class StrEnum(str, enum.Enum):
+        """Minimal StrEnum compatible with stdlib’s StrEnum."""
+        pass
 
 class PlatformType(StrEnum):
     """Enumeration of supported platform types.
